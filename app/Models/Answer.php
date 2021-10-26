@@ -15,6 +15,6 @@ class Answer extends Model
      */
     public function intents(): BelongsToMany
     {
-        return $this->belongsToMany(Intent::class);
+        return $this->belongsToMany(Intent::class, 'answers_intents');
     }
 }

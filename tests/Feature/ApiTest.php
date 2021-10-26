@@ -71,9 +71,9 @@ class ApiTest extends TestCase
      * 2. The intents by answers count
      */
     public function it_orders_the_paginated_intents_by_status_first_and_then_by_answers_count()
-    {   
+    {
         $response = $this->postJson('/api/intents', [
-            'orderBy' => ['draft', 'answers_count']
+            'orderBy' => ['status', 'answers_count']
         ]);
         $intents = $response->json();
         $dbIntents = DB::table('intents')
@@ -82,10 +82,9 @@ class ApiTest extends TestCase
             ->groupBy('intents.id')
             ->limit(4)
             ->orderByRaw('intents.status, answers_count DESC')
-            ->toSql();
+            ->get();
 
-        $response = $this->get('/api/intents');
         $response->assertStatus(200);
-        $dbIntents->map(fn ($dbIntent, $index) => $this->assertEquals($dbIntent->intent_id, $intents[$index]['id']));
+        $dbIntents->map(fn ($dbIntent, $index) => $this->assertEquals($dbIntent->id, $intents[$index]['id']));
     }
 }

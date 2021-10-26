@@ -1,7 +1,6 @@
 <?php
 
-use App\Models\Intent;
-use Illuminate\Http\Request;
+use App\Http\Controllers\IntentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,8 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/intents', function () {
-    // This is where you should start your API implementation!
-});
+Route::post('/intents', [IntentController::class, 'index']);
 
 

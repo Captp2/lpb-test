@@ -29,6 +29,6 @@ class Intent extends Model
      */
     public function answers(): BelongsToMany
     {
-        return $this->belongsToMany(Answer::class);
+        return $this->belongsToMany(Answer::class, 'answers_intents');
     }
 }
