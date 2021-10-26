@@ -19,6 +19,10 @@ class IntentController extends Controller
         self::ORDER_UPDATED_AT,
     ];
 
+    const ORDER_DIRECTIONS = [
+        self::ORDER_ANSWERS_COUNT => 'desc'
+    ];
+
     const ORDER_ANSWERS_COUNT = 'answers_count';
     const ORDER_STATUS = 'status';
     const ORDER_TITLE = 'title';
@@ -28,16 +32,35 @@ class IntentController extends Controller
     /**
      * @param Request $request
      * @return JsonResponse
+     *
+     * Used for API
      */
     public function index(Request $request): JsonResponse
     {
         try {
             $intentCollection = $this->buildQuery($request);
         } catch (\InvalidArgumentException $e) {
-            return response()->json('Invalid order by supplied', 400);
+            return response()->json(['error' => $e->getMessage()], 400);
         }
 
         return response()->json($intentCollection);
+    }
+
+    /**
+     * @param Request $request
+     * @return View
+     *
+     * Used for web
+     */
+    public function view(Request $request): View
+    {
+        try {
+            $intentCollection = $this->buildQuery($request);
+        } catch (\InvalidArgumentException $e) {
+            return view('intents', ['error' => $e->getMessage()]);
+        }
+
+        return view('intents', ['intents' => $intentCollection]);
     }
 
     /**
@@ -51,16 +74,9 @@ class IntentController extends Controller
 
         foreach ($request->get('orderBy', ['title']) as $order) {
             if (in_array($order, self::SUPPORTED_ORDERS)) {
-                // If we ever need more special orders
-                switch ($order) {
-                    case 'answers_count':
-                        $queryBuilder->orderBy('answers_count', 'desc');
-                        break;
-                    default:
-                        $queryBuilder->orderBy($order);
-                }
+                $queryBuilder->orderBy($order, self::getOrderDirection($order));
             } else {
-                throw new InvalidArgumentException();
+                throw new InvalidArgumentException("Invalid order by supplied");
             }
         }
 
@@ -68,17 +84,11 @@ class IntentController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return View
+     * @param string $order
+     * @return string
      */
-    public function view(Request $request): View
+    private static function getOrderDirection(string $order): string
     {
-        try {
-            $intentCollection = $this->buildQuery($request);
-        } catch (\InvalidArgumentException $e) {
-            return view('intents', ['error' => 'Invalid order by supplied']);
-        }
-
-        return view('intents', ['intents' => $intentCollection]);
+        return self::ORDER_DIRECTIONS[$order] ?? self::DEFAULT_ORDER_DIRECTION;
     }
 }
