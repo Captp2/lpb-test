@@ -16,6 +16,7 @@ class IntentController extends Controller
     public function index(Request $request): JsonResponse
     {
         $queryBuilder = Intent::query();
+        $queryBuilder->withCount('answers');
         try {
             $this->buildOrder($request, $queryBuilder);
         } catch (\InvalidArgumentException $e) {
@@ -36,7 +37,6 @@ class IntentController extends Controller
                 // If we ever need more special orders
                 switch ($order) {
                     case 'answers_count':
-                        $queryBuilder->withCount('answers');
                         $queryBuilder->orderBy('answers_count', 'desc');
                         break;
                     default:
